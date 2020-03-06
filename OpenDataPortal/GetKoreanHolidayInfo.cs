@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Net.Http;
 using System.Xml;
 
+
 namespace OpenDataPortal
 {
 
@@ -39,6 +40,7 @@ namespace OpenDataPortal
 
         private HttpClient client;
 
+        // 사용할 공공데이터 END_POINT URL 설정
         private string END_POINT = "http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo";
 
         // 작업 결과 값을 반환할 경우 CodeActivity<TResult>에서 파생되고
@@ -47,6 +49,7 @@ namespace OpenDataPortal
         {
             client = new HttpClient();
 
+            // 사용자가 입력한 context 받아와서 적용
             string serviceKey = context.GetValue(this.ServiceKey);
             string year = context.GetValue(this.Year);
             string month = context.GetValue(this.Month);
@@ -59,11 +62,16 @@ namespace OpenDataPortal
                 {
                     client.DefaultRequestHeaders.Add("Accept", "application/xml");
                     client.DefaultRequestHeaders.Add("User-Agent", "HttpClient/.NET");
+                    // Get 전송을 위한 Target URL 설정
                     var targetUrl = string.Format("{0}?serviceKey={1}&solYear={2}&solMonth={3}",
                         END_POINT, serviceKey, year, month);
-                    //System.Console.WriteLine(targetUrl);
+                    // END_POINT 와 parameter 합친 URL 출력해보기
+                    // System.Console.WriteLine(targetUrl);
+
+                    // Response 결과
                     var response = client.GetAsync(targetUrl).Result;
 
+                    // 성공햇을경우
                     if (response.IsSuccessStatusCode)
                     {
                         var content = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
@@ -85,11 +93,13 @@ namespace OpenDataPortal
                             }
                             if (resultCode == 0)
                             {
+                                // XML파일에서 item Node를 받아옴
                                 nodeList = root.GetElementsByTagName("item");
                                 for (int idx = 0; idx < nodeList.Count; idx++)
                                 {
                                     var node = nodeList[idx];
                                     string locdate = string.Empty, dateName = string.Empty, isHoliday = string.Empty;
+                                    // XML item 노드 갯수만큼 반복
                                     for (int n = 0; n < node.ChildNodes.Count; n++)
                                     {
                                         var data = node.ChildNodes[n];
@@ -129,6 +139,7 @@ namespace OpenDataPortal
                 resultCode = -1;
             }
 
+            // 결과 값 저장
             context.SetValue(this.ResultCode, resultCode);
             context.SetValue(this.Holidays, holidayDict);
         }

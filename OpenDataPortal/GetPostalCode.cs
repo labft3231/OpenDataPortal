@@ -40,6 +40,8 @@ namespace OpenDataPortal
         [RequiredArgument]
         public OutArgument<DataTable> Result { get; set; }
 
+   
+
 
         // 작업 결과 값을 반환할 경우 CodeActivity<TResult>에서 파생되고
         // Execute 메서드에서 값을 반환합니다.
